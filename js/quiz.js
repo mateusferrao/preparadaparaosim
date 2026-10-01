@@ -1,6 +1,7 @@
 /* Preparada para o Sim · quiz "Você está pronta para o Sim?" */
 (function(){
 const C = window.PPS_CONFIG;
+const BASE = (document.currentScript ? document.currentScript.src : location.href).replace(/js\/quiz\.js(\?.*)?$/, '');
 const Q = [
  {t:"Quando você pensa na sua vida amorosa hoje, qual frase mais parece com você?", o:{A:"\"Estou esperando o tempo de Deus. Se for pra ser, vai acontecer.\"",B:"\"Se eu não tomar a iniciativa, nada acontece.\"",C:"\"Ainda estou me recuperando do que vivi.\"",D:"\"Parece que eu sempre termino no mesmo tipo de história.\"",E:"\"Vivo me perguntando se cada rapaz que aparece é ele.\"",F:"\"Nunca namorei e às vezes acho que tem algo errado comigo.\""}},
  {t:"Quando um homem demonstra interesse por você, o que costuma acontecer?", o:{A:"Quase não acontece. Não estou em lugares onde conheço gente nova.",B:"Eu me empolgo e acabo investindo mais do que ele.",C:"Eu me fecho ou fico desconfiada.",D:"No começo fico feliz, mas logo percebo que é \"mais do mesmo\".",E:"Já começo a imaginar o casamento e a procurar sinais de que é de Deus.",F:"Fico sem saber como agir, porque nunca vivi isso."}},
@@ -83,7 +84,7 @@ function shell(){
   el.querySelector('.x').onclick=close;
 }
 function open(){ shell(); el.classList.add('on'); document.body.style.overflow='hidden'; const saved=location.hash.match(/^#resultado-([A-F])$/); if(saved && P[saved[1]]) { result(saved[1]); return; } start(); }
-function close(){ if(!el) return; el.classList.remove('on'); document.body.style.overflow=''; if(location.pathname.includes('/teste')) location.href='/'; }
+function close(){ if(!el) return; el.classList.remove('on'); document.body.style.overflow=''; if(location.pathname.includes('/teste')) location.href=BASE; }
 function setProg(p){ prog.style.width=p+'%'; el.scrollTop=0; }
 function start(){
   i=0; ans=[]; setProg(0);
@@ -110,7 +111,7 @@ function contact(){
    <label class="field"><span>Seu nome</span><input name="nome" autocomplete="given-name" required></label>
    <label class="field"><span>WhatsApp (com DDD)</span><input name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678" required></label>
    <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required></label>
-   <label class="consent"><input type="checkbox" name="consent" required><span>Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp e e-mail. Posso cancelar quando quiser. <a href="/privacidade/" target="_blank">Política de privacidade</a></span></label>
+   <label class="consent"><input type="checkbox" name="consent" required><span>Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp e e-mail. Posso cancelar quando quiser. <a href="${BASE}privacidade/" target="_blank">Política de privacidade</a></span></label>
    <p class="err" id="er"></p>
    <button class="btn block" type="submit">Ver meu resultado</button></form><button class="back">← Voltar</button>`;
   body.querySelector('.back').onclick=()=>{ i=Q.length-1; ask(); };
@@ -157,7 +158,7 @@ function result(k, nome){
    <a href="#" class="btn block" data-checkout="quiz_${k}">Quero continuar a minha jornada</a>
    <p class="small" style="margin:10px 0 0">Pix ou cartão · Acesso imediato · Garantia Clareza em 21 Dias</p>
   </div>
-  <img src="/assets/img/mock-dia1.webp" alt="Página do Dia 1 da jornada no celular" style="width:220px;margin:0 auto 10px" loading="lazy">
+  <img src="${BASE}assets/img/mock-dia1.webp" alt="Página do Dia 1 da jornada no celular" style="width:220px;margin:0 auto 10px" loading="lazy">
   <p class="muted" style="text-align:center;font-size:14px">Como é cada dia: leitura curta · reflexão de 2 a 3 min · exercício de 5 min · oração · marque no seu Mapa</p>
   <div class="box"><div class="k">Risco zero, em dobro</div><p style="margin:0"><b>Garantia Sem Perguntas:</b> 7 dias para pedir o dinheiro de volta. <b>Garantia Clareza em 21 Dias:</b> se você fizer os 21 dias e não tiver clareza do que busca, do que não aceita mais e um plano para quando ele se aproximar, escreva para a gente em até 30 dias da compra e devolvemos 100%.</p><p class="muted" style="margin:10px 0 0;font-size:14px">Não é promessa de namorado em 21 dias. É o preparo e o caminho para quando ele aparecer.</p></div>
   <details open><summary>${p.f[0]}</summary><p>${p.f[1]}</p></details>
@@ -165,11 +166,11 @@ function result(k, nome){
   <details><summary>Não tenho tempo.</summary><p>São 10 minutos por dia, no horário que você escolher.</p></details>
   <div style="text-align:center;margin-top:28px"><h3>Você já deu o primeiro passo hoje. <em style="color:var(--rose-d)">Não pare no passo 1.</em></h3>
    <a href="#" class="btn block" data-checkout="quiz_${k}">Quero continuar a minha jornada</a>
-   <p style="margin-top:14px"><a href="/" class="muted" style="font-size:15px">Quer ver tudo o que está incluso, em detalhes? Ver a página completa →</a></p></div>`;
+   <p style="margin-top:14px"><a href="${BASE}" class="muted" style="font-size:15px">Quer ver tudo o que está incluso, em detalhes? Ver a página completa →</a></p></div>`;
   PPS.paintPrices(body); PPS.tick();
   body.querySelectorAll('[data-checkout]').forEach(a=>a.onclick=e=>{e.preventDefault(); PPS.goCheckout(a.dataset.checkout);});
   body.querySelector('#sv').onclick=async()=>{
-    const url=location.origin+'/teste/#resultado-'+k;
+    const url=BASE+'teste/#resultado-'+k;
     try{ if(navigator.share){ await navigator.share({title:'Meu resultado: '+p.n,text:'Meu perfil no teste Preparada para o Sim: '+p.n,url}); return; } }catch(x){}
     try{ await navigator.clipboard.writeText(url); alert('Link do seu resultado copiado. Guarde para ver depois.'); }catch(x){ prompt('Copie o link do seu resultado:', url); }
   };
