@@ -43,17 +43,26 @@
     });
     (root||document).querySelectorAll('[data-lote]').forEach(el=>{ el.style.display = loteAtivo() ? '' : 'none'; });
     (root||document).querySelectorAll('[data-pos-lote]').forEach(el=>{ el.style.display = loteAtivo() ? 'none' : ''; });
+    const vg = vagasTxt();
+    (root||document).querySelectorAll('[data-urg-vagas]').forEach(el=>{ el.textContent = vg; });
+    if(vg || timerFim) document.querySelectorAll('.urg').forEach(el=>el.classList.add('on'));
     if(DEMO){
       (root||document).querySelectorAll('.vagas').forEach(el=>{ el.classList.add('on'); el.textContent = 'Restam '+C.DEMO_VAGAS+' de '+C.VAGAS_TOTAL+' vagas'; });
-    } else if(C.VAGAS_RESTANTES!=null && loteAtivo() && C.VAGAS_RESTANTES/C.VAGAS_TOTAL < 0.3){
+    } else if(C.VAGAS_RESTANTES!=null && loteAtivo()){
       (root||document).querySelectorAll('.vagas').forEach(el=>{ el.classList.add('on'); el.textContent = 'Restam '+C.VAGAS_RESTANTES+' vagas no lote fundador'; });
     }
+  }
+  function vagasTxt(){
+    const n = DEMO ? C.DEMO_VAGAS : (loteAtivo() ? C.VAGAS_RESTANTES : null);
+    return n==null ? '' : 'restam '+n+' de '+C.VAGAS_TOTAL+' vagas';
   }
   function tick(){
     if(!timerFim || (!DEMO && !loteAtivo())) return;
     let s = Math.max(0, Math.floor((timerFim - Date.now())/1000));
     const d=Math.floor(s/86400); s%=86400; const h=Math.floor(s/3600); s%=3600; const m=Math.floor(s/60); s%=60;
     const f=n=>String(n).padStart(2,'0');
+    const curto = (d?d+'d ':'')+f(h)+':'+f(m)+':'+f(s);
+    document.querySelectorAll('[data-urg-tempo]').forEach(t=>{ t.textContent = curto; });
     document.querySelectorAll('.timer').forEach(t=>{
       t.classList.add('on');
       t.innerHTML = (d?`<div><b>${d}</b><span>dias</span></div>`:'')+`<div><b>${f(h)}</b><span>horas</span></div><div><b>${f(m)}</b><span>min</span></div><div><b>${f(s)}</b><span>seg</span></div>`;
