@@ -161,7 +161,7 @@ function result(k, nome){
   body.innerHTML=`
   <div class="res-h"><div class="k">Seu resultado${nome?', '+esc(nome.split(' ')[0]):''}</div><h2>${p.n}</h2><p style="margin:0">${p.d}</p></div>
   <div class="box"><div class="k">O custo de continuar assim</div><p style="margin:0">${p.c}</p></div>
-  <div class="box"><span class="tag">História ilustrativa</span><p>${p.h}</p><div class="k" style="margin-top:14px">História real</div><p style="font-family:Fraunces;font-style:italic;font-size:19px;margin:0 0 6px">${r[0]}</p><p class="muted" style="margin:0;font-size:14px">${r[1]} · publicada com autorização</p></div>
+  <div class="box"><div class="k">Uma história que talvez seja a sua</div><p>${p.h}</p><p class="reveal" style="font-size:16px"><i>A ${p.h.split(',')[0]} não existe.</i> <b>Mas o padrão que ela viveu, talvez você conheça bem.</b></p><div class="k" style="margin-top:18px">História real</div><p style="font-family:Fraunces;font-style:italic;font-size:19px;margin:0 0 6px">${r[0]}</p><p class="muted" style="margin:0;font-size:14px">${r[1]} · publicada com autorização</p></div>
   <div class="box"><div class="k">O padrão invisível</div><p style="margin:0;font-family:Fraunces;font-size:20px">${p.m}</p></div>
   <div class="box step"><div class="k">Seu primeiro passo · hoje, 5 minutos</div><h3>${p.s[0]}</h3><p style="margin:0">${p.s[1]}</p>${p.care?`<p class="muted" style="margin:12px 0 0;font-size:14px">${p.care}</p>`:''}</div>
   <p><strong>Esse é o passo 1. A jornada Preparada para o Sim tem 21.</strong> ${p.b} ${livrosTxt}</p>
