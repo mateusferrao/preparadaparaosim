@@ -108,22 +108,48 @@ function contact(){
   body.innerHTML=`<div class="label">Quase lá</div><h2>Seu resultado <em>está pronto.</em></h2>
   <p>Preencha para liberar seu perfil + o seu primeiro passo gratuito.</p>
   <form id="lf" novalidate>
-   <label class="field"><span>Seu nome</span><input name="nome" autocomplete="given-name" required></label>
-   <label class="field"><span>WhatsApp (com DDD)</span><input name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678" required></label>
-   <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required></label>
-   <label class="consent"><input type="checkbox" name="consent" required><span>Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp e e-mail. Posso cancelar quando quiser. <a href="${BASE}privacidade/" target="_blank">Política de privacidade</a></span></label>
-   <p class="err" id="er"></p>
+   <label class="field"><span>Seu nome</span><input name="nome" autocomplete="given-name" required aria-describedby="e-nome"><small class="ferr" id="e-nome" aria-live="polite"></small></label>
+   <label class="field"><span>WhatsApp (com DDD)</span><input name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678" required aria-describedby="e-whatsapp"><small class="ferr" id="e-whatsapp" aria-live="polite"></small></label>
+   <label class="field"><span>E-mail</span><input name="email" type="email" inputmode="email" autocomplete="email" required aria-describedby="e-email"><small class="ferr" id="e-email" aria-live="polite"></small></label>
+   <label class="consent"><input type="checkbox" name="consent" required aria-describedby="e-consent"><span>Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp e e-mail. Posso cancelar quando quiser. <a href="${BASE}privacidade/" target="_blank">Política de privacidade</a></span></label><small class="ferr" id="e-consent" aria-live="polite"></small>
+   <p class="err" id="er" aria-live="polite"></p>
    <button class="btn block" type="submit">Ver meu resultado</button></form><button class="back">← Voltar</button>`;
   body.querySelector('.back').onclick=()=>{ i=Q.length-1; ask(); };
-  body.querySelector('#lf').onsubmit=e=>{
-    e.preventDefault(); const f=e.target, er=body.querySelector('#er');
-    const nome=f.nome.value.trim(), w=f.whatsapp.value.replace(/\D/g,''), em=f.email.value.trim();
-    let msg='';
-    if(nome.length<2) msg='Digite o seu nome.';
-    else if(!(w.length===10||w.length===11)) msg='Digite o WhatsApp com DDD (10 ou 11 números).';
-    else if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) msg='Confira o seu e-mail.';
-    else if(!f.consent.checked) msg='Para ver o resultado, marque a caixa de consentimento.';
-    if(msg){ er.textContent=msg; er.classList.add('on'); return; }
+  const f=body.querySelector('#lf'), er=body.querySelector('#er');
+  // só dígitos, sem 0 inicial e sem o +55 (autopreenchimento do celular costuma incluir)
+  const dig=v=>{ let d=v.replace(/\D/g,'').replace(/^0+/,''); if((d.length===12||d.length===13)&&d.startsWith('55')) d=d.slice(2); return d; };
+  const EX_W='Exemplo: (11) 91234-5678', EX_E='Exemplo: nome@gmail.com';
+  const checks={
+    nome:()=>{ const v=f.nome.value.trim(); return !v ? 'Digite o seu nome.' : v.length<2 ? 'O nome precisa ter pelo menos 2 letras.' : ''; },
+    whatsapp:()=>{ const v=f.whatsapp.value.trim(), d=dig(v);
+      if(!v) return 'Digite o seu WhatsApp com DDD.';
+      if(d.length<10) return `Faltam números: você digitou ${d.length}, e o WhatsApp com DDD tem 10 ou 11. ${EX_W}`;
+      if(d.length>11) return `Números a mais: você digitou ${d.length}, e o WhatsApp com DDD tem 10 ou 11. ${EX_W}`;
+      return ''; },
+    email:()=>{ const v=f.email.value.trim();
+      if(!v) return 'Digite o seu e-mail.';
+      if(/\s/.test(v)) return `O e-mail não pode ter espaços. ${EX_E}`;
+      if(!v.includes('@')) return `Falta o @ no e-mail. ${EX_E}`;
+      if(!/^[^@]+@[^@]+\.[^@.]{2,}$/.test(v)) return `E-mail incompleto: confira o que vem depois do @. ${EX_E}`;
+      return ''; },
+    consent:()=> f.consent.checked ? '' : 'Marque esta caixa para ver o seu resultado.'
+  };
+  const show=n=>{ const m=checks[n](), inp=f[n];
+    inp.closest('.field,.consent').classList.toggle('bad',!!m); inp.setAttribute('aria-invalid',m?'true':'false');
+    body.querySelector('#e-'+n).textContent=m; return m; };
+  const summary=bad=>{ er.textContent = bad.length===1 ? 'Falta corrigir 1 campo, destacado em vermelho.' : `Faltam corrigir ${bad.length} campos, destacados em vermelho.`; er.classList.toggle('on',bad.length>0); };
+  let tried=false;
+  Object.keys(checks).forEach(n=>{
+    // depois da 1ª tentativa, revalida enquanto digita; antes disso, só ao sair de um campo já preenchido
+    f[n].addEventListener(n==='consent'?'change':'input',()=>{ if(tried){ show(n); summary(Object.keys(checks).filter(k=>checks[k]())); } });
+    if(n!=='consent') f[n].addEventListener('blur',()=>{ if(tried || f[n].value.trim()) show(n); });
+  });
+  f.onsubmit=e=>{
+    e.preventDefault(); tried=true;
+    const bad=Object.keys(checks).filter(show);
+    summary(bad);
+    if(bad.length){ const first=f[bad[0]]; first.closest('.field,.consent').scrollIntoView({behavior:'smooth',block:'center'}); first.focus({preventScroll:true}); return; }
+    const nome=f.nome.value.trim(), w=dig(f.whatsapp.value), em=f.email.value.trim();
     const perfil=scoreOf();
     const payload=Object.assign({data:new Date().toISOString(),nome,whatsapp:w,email:em,perfil,perfil_nome:P[perfil].n,respostas:ans.join(','),livros:ans[7]||'',idade:Q[8].o[ans[8]]||'',
       consentimento:'Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp e e-mail. Posso cancelar quando quiser.',pagina:location.href}, PPS.utms());

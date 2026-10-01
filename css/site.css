@@ -130,6 +130,10 @@ footer a{color:var(--dk-mut)}
 .consent{display:flex;gap:10px;font-size:14px;line-height:1.45;color:#4A3C41;margin:6px 0 18px}
 .consent input{width:20px;height:20px;flex:0 0 20px;margin-top:2px;accent-color:var(--rose-d)}
 .err{color:var(--wine);font-size:14px;margin:-6px 0 12px;display:none}.err.on{display:block}
+.ferr{display:block;color:var(--wine);font-size:13.5px;line-height:1.4;font-weight:500;margin-top:6px}.ferr:empty{display:none}
+.field.bad>span{color:var(--wine)}.field.bad input{border-color:var(--wine);background:#FFF7F6}
+.consent.bad{color:var(--wine)}.consent.bad input{outline:2px solid var(--wine);outline-offset:2px}.consent+.ferr{margin:-12px 0 16px 37px}
+.err.on{font-weight:600}
 .res-h{background:var(--dk) url(../assets/img/textura.webp) center/cover;color:var(--dk-txt);border-radius:var(--r);padding:28px 24px;margin-bottom:22px}
 .res-h .k{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
 .res-h h2{margin:8px 0 12px;color:#fff}
