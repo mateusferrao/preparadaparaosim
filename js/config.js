@@ -24,8 +24,8 @@ window.PPS_CONFIG = {
   DEMO_CONTADOR: "02:54:27",
   DEMO_VAGAS: 4,
 
-  // Coleta de leads do quiz (URL do Google Apps Script). Vazio = não salva.
-  LEADS_ENDPOINT: "",
+  // Coleta de leads do quiz (webhook do n8n que grava na planilha). Vazio = não salva.
+  LEADS_ENDPOINT: "https://n8n.automato.pro/webhook/preparada-leads",
 
   // Rastreamento (fase de anúncios). Vazio = desligado.
   META_PIXEL_ID: "",
