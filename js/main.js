@@ -43,7 +43,8 @@
     p.contents = [{content_id: p.content_id, content_type: p.content_type, content_name: p.content_name, quantity: 1, price: p.value || precoAtual()}];
     try{ if(window.fbq) fbq('track', ev, Object.assign({content_ids:[p.content_id]}, p), eid ? {eventID: eid} : undefined); }catch(e){}
     // TikTok: o lead do quiz vai como CompleteRegistration (evento do funil de conversão configurado no pixel)
-    try{ if(window.ttq) ttq.track(ev==='Lead'?'CompleteRegistration':ev==='InitiateCheckout'?'InitiateCheckout':'ViewContent', p, eid ? {event_id: eid} : undefined); }catch(e){}
+    // o clique em comprar vai como ClickButton: o InitiateCheckout o checkout da Cakto já dispara ao abrir (senão contaria em dobro)
+    try{ if(window.ttq) ttq.track(ev==='Lead'?'CompleteRegistration':ev==='InitiateCheckout'?'ClickButton':'ViewContent', p, eid ? {event_id: eid} : undefined); }catch(e){}
   }
   // eventos próprios do funil (ex.: progresso do quiz), sem misturar com os eventos de produto
   function trackCustom(nome, data){
