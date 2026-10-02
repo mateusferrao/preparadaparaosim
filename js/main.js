@@ -43,7 +43,9 @@
   function goCheckout(origem){
     track('InitiateCheckout');
     // origem (lp_preco, quiz_D…) vai no sck, que a Cakto grava no pedido; a utm_content do anúncio fica intacta
-    location.href = checkoutURL(origem ? {sck: origem, utm_content: (utms().utm_content||origem)} : null);
+    const url = checkoutURL(origem ? {sck: origem, utm_content: (utms().utm_content||origem)} : null);
+    // window.open na mesma aba: o script da Utmify intercepta e acrescenta os parâmetros dela (ID do clique no utm_content)
+    try{ window.open(url, '_self'); }catch(e){ location.href = url; }
   }
   // pixels (só se configurados)
   if(C.META_PIXEL_ID){
