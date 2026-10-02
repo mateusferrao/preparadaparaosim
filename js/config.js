@@ -31,6 +31,15 @@ window.PPS_CONFIG = {
   META_PIXEL_ID: "",
   TIKTOK_PIXEL_ID: "",
 
+  // Pós-compra: upsell (/palavras-certas/) → downsell (/palavras-certas-5/) → obrigado (/obrigado/)
+  // Cole aqui os links que a Cakto gerar. Vazio = o botão "Sim" fica escondido (a página não quebra).
+  KIT_LINK: "",        // botão "Sim" do upsell (Kit Essencial, R$ 37): link de 1 clique da Cakto ou checkout do Kit
+  KIT5_LINK: "",       // botão "Sim" do downsell (As 5 Primeiras, R$ 19,90)
+  PRECO_KIT: "37",
+  PRECO_KIT5: "19,90",
+  AREA_MEMBROS: "",    // link de acesso à área de membros da Cakto (botão "Abrir o Dia 1" no obrigado)
+  INSTAGRAM: "",       // @ do perfil, sem o @ (ex.: "preparadaparaosim"). Vazio = não mostra.
+
   SUPORTE: "contato@preparadaparaosim.com.br",
   FORM_DEPOIMENTO: "https://forms.gle/J4uT3NYzcT6nj9XbA"
 };

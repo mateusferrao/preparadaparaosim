@@ -1,0 +1,36 @@
+/* Preparada para o Sim · páginas do pós-compra (upsell, downsell, obrigado). Usa as variáveis do site.css */
+.fn-top{background:var(--dk);color:var(--dk-txt);font-size:13px;padding:10px 16px;text-align:center;letter-spacing:.02em}
+.fn-top b{color:var(--gold)}
+.fn-steps{display:flex;justify-content:center;gap:6px;margin-top:8px}
+.fn-steps i{display:block;width:44px;height:4px;border-radius:9px;background:rgba(255,255,255,.18)}
+.fn-steps i.ok{background:var(--gold)}.fn-steps i.now{background:var(--rose)}
+.fn-hero{position:relative;background:var(--dk) center/cover no-repeat;color:var(--dk-txt);padding:0}
+.fn-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,17,20,.94) 0%,rgba(20,17,20,.78) 50%,rgba(20,17,20,.55) 75%,rgba(20,17,20,.95) 100%)}
+.fn-hero .wrap{position:relative;padding-top:44px;padding-bottom:48px}
+.fn-hero h1{font-size:clamp(30px,6vw,52px);max-width:720px}
+.fn-hero .lead{color:#E6D9D0;max-width:620px}
+@media(min-width:900px){.fn-hero::before{background:linear-gradient(90deg,rgba(20,17,20,.96) 0%,rgba(20,17,20,.82) 50%,rgba(20,17,20,.2) 80%)}.fn-hero .wrap{padding-top:80px;padding-bottom:80px}}
+.fn-ok{display:inline-flex;align-items:center;gap:8px;background:rgba(111,143,114,.18);border:1px solid rgba(126,154,128,.6);color:#CFE0D0;border-radius:999px;padding:6px 14px;font-size:14px;margin-bottom:18px}
+.fn-list{list-style:none;padding:0;margin:0;counter-reset:c}
+.fn-list li{counter-increment:c;display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);font-size:17px}
+.fn-list li::before{content:counter(c);flex:0 0 34px;height:34px;border-radius:10px;border:1.5px solid var(--rose-d);color:var(--rose-d);display:flex;align-items:center;justify-content:center;font-family:'Fraunces';font-size:17px}
+.fn-list li.off{color:var(--mut);text-decoration:line-through;text-decoration-color:rgba(110,95,99,.5)}
+.fn-list li.off::before{border-color:var(--line);color:var(--mut)}
+.fn-parts{display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-top:18px}
+@media(min-width:800px){.fn-parts{grid-template-columns:repeat(4,1fr)}}
+.fn-parts div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;font-size:15px;line-height:1.4}
+.fn-parts b{display:block;font-family:'Fraunces';font-weight:500;font-size:18px;margin-bottom:4px;color:var(--ink)}
+.fn-map{display:grid;gap:10px;margin-top:16px}
+.fn-map div{display:flex;gap:12px;align-items:center;background:rgba(29,24,28,.78);border:1px solid rgba(200,169,106,.35);border-radius:16px;padding:14px 16px;font-size:15px}
+.fn-map p{margin:0;min-width:0}
+.fn-map span{flex:0 0 auto;font-family:'Fraunces';color:var(--gold);font-size:15px;min-width:64px}
+.fn-no{display:block;margin:18px auto 0;text-align:center;color:var(--dk-mut);font-size:15px;text-decoration:underline;text-underline-offset:3px;max-width:420px;line-height:1.4}
+.light .fn-no{color:var(--mut)}
+.fn-note{font-size:13px;color:var(--dk-mut);margin:12px 0 0;line-height:1.45}
+.fn-chat{display:grid;gap:8px;margin:14px 0}
+.fn-chat p{margin:0;max-width:86%;padding:10px 14px;border-radius:18px 18px 18px 6px;background:#fff;border:1px solid var(--line);font-size:15px}
+.fn-chat p.me{justify-self:end;border-radius:18px 18px 6px 18px;background:var(--rose-l);border-color:#EBD3CC}
+.fn-share{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.fn-share .btn{font-size:16px;padding:14px 22px}
+.fn-share .btn.ghost{background:transparent;color:var(--rose-d);border:1.5px solid var(--rose-d);box-shadow:none}
+.fn-hide{display:none!important}
