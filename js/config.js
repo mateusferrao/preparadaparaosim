@@ -29,7 +29,7 @@ window.PPS_CONFIG = {
 
   // Rastreamento (fase de anúncios). Vazio = desligado.
   META_PIXEL_ID: "",
-  TIKTOK_PIXEL_ID: "",
+  TIKTOK_PIXEL_ID: "DB019ABC77UA36CC7M4G",
 
   // Pós-compra: upsell (/palavras-certas/) → downsell (/palavras-certas-5/) → obrigado (/obrigado/)
   // Cole aqui os links que a Cakto gerar. Vazio = o botão "Sim" fica escondido (a página não quebra).
