@@ -154,6 +154,7 @@ function contact(){
     const payload=Object.assign({data:new Date().toISOString(),nome,whatsapp:w,perfil,perfil_nome:P[perfil].n,respostas:ans.join(','),livros:ans[7]||'',idade:Q[8].o[ans[8]]||'',
       consentimento:'Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp. Posso cancelar quando quiser.',pagina:location.href,event_id:eventId,ttp}, PPS.utms(), PPS.clickIds());
     if(C.LEADS_ENDPOINT){ try{ fetch(C.LEADS_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,body:new URLSearchParams(payload)}); }catch(x){} }
+    PPS.identify(w); // antes do CompleteRegistration, para o TikTok ligar o lead ao telefone
     PPS.track('Lead',{content_name:'quiz', content_category:perfil}, {event_id:eventId});
     try{ localStorage.setItem('pps_perfil',perfil); localStorage.setItem('pps_nome',nome); localStorage.setItem('pps_idade',ans[8]||''); localStorage.setItem('pps_livros',ans[7]||''); }catch(x){}
     history.replaceState(null,'','#resultado-'+perfil);

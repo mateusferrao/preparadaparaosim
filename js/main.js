@@ -2,14 +2,21 @@
 (function(){
   const C = window.PPS_CONFIG;
   const qs = new URLSearchParams(location.search);
-  // guarda UTMs da primeira visita (sessão)
+  // origem da visita (UTMs + IDs de clique dos anúncios): guardada por 7 dias no navegador e levada até o checkout da Cakto
+  // último clique: uma visita com parâmetros substitui o que estava guardado; visita sem parâmetros mantém o guardado
   const UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'];
-  try{ UTM_KEYS.forEach(k=>{ if(qs.get(k)) sessionStorage.setItem(k, qs.get(k)); }); }catch(e){}
-  const utms = () => { const o={}; try{ UTM_KEYS.forEach(k=>{ const v=qs.get(k)||sessionStorage.getItem(k); if(v) o[k]=v; }); }catch(e){} return o; };
-  // IDs de clique dos anúncios: vão até o checkout da Cakto (outro domínio) para a compra ser ligada ao anúncio
   const CLICK_KEYS = ['ttclid','fbclid','gclid'];
-  try{ CLICK_KEYS.forEach(k=>{ if(qs.get(k)) sessionStorage.setItem(k, qs.get(k)); }); }catch(e){}
-  const clickIds = () => { const o={}; try{ CLICK_KEYS.forEach(k=>{ const v=qs.get(k)||sessionStorage.getItem(k); if(v) o[k]=v; }); }catch(e){} return o; };
+  const ORIGEM_KEY = 'pps_origem', DIAS_7 = 7*864e5;
+  const daURL = {}; UTM_KEYS.concat(CLICK_KEYS).forEach(k=>{ if(qs.get(k)) daURL[k]=qs.get(k); });
+  let origem = daURL;
+  if(Object.keys(daURL).length){ try{ localStorage.setItem(ORIGEM_KEY, JSON.stringify({t:Date.now(), p:daURL})); }catch(e){} }
+  else { try{ const g=JSON.parse(localStorage.getItem(ORIGEM_KEY)||'null'); if(g && Date.now()-g.t < DIAS_7) origem=g.p||{}; else localStorage.removeItem(ORIGEM_KEY); }catch(e){} }
+  const pick = keys => { const o={}; keys.forEach(k=>{ if(origem[k]) o[k]=origem[k]; }); return o; };
+  const utms = () => pick(UTM_KEYS);
+  const clickIds = () => pick(CLICK_KEYS);
+
+  // páginas pós-compra levam o token do pedido na URL (upsellToken): nelas nenhum pixel é carregado
+  const POS_COMPRA = /^\/(palavras-certas|palavras-certas-5|obrigado)(\/|\/index\.html)?$/.test(location.pathname);
 
   const DEMO = !!C.DEMO_ESCASSEZ;
   const demoFim = DEMO ? (()=>{ const [h,m,s]=(C.DEMO_CONTADOR||'02:54:27').split(':').map(Number); return new Date(Date.now()+((h*60+m)*60+s)*1000); })() : null;
@@ -51,14 +58,29 @@
     // window.open na mesma aba: o script da Utmify intercepta e acrescenta os parâmetros dela (ID do clique no utm_content)
     try{ window.open(url, '_self'); }catch(e){ location.href = url; }
   }
+  // telefone do quiz (só dígitos, com DDD) → TikTok em E.164; o pixel criptografa (SHA-256) antes de enviar
+  // no navegador fica só o hash, por 7 dias
+  const TEL_KEY = 'pps_tel';
+  function identify(whats){
+    const tel = '+55' + String(whats||'').replace(/\D/g,'');
+    if(tel.length < 13) return;
+    try{ if(window.ttq) ttq.identify({phone_number: tel}); }catch(e){}
+    try{ crypto.subtle.digest('SHA-256', new TextEncoder().encode(tel)).then(b=>{
+      const h = Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
+      try{ localStorage.setItem(TEL_KEY, JSON.stringify({t:Date.now(), h})); }catch(e){}
+    }); }catch(e){}
+  }
   // pixels (só se configurados)
-  if(C.META_PIXEL_ID){
+  if(C.META_PIXEL_ID && !POS_COMPRA){
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', C.META_PIXEL_ID); fbq('track','PageView');
   }
-  if(C.TIKTOK_PIXEL_ID){
+  if(C.TIKTOK_PIXEL_ID && !POS_COMPRA){
     !function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var o=d.createElement("script");o.type="text/javascript";o.async=!0;o.src=i+"?sdkid="+e+"&lib="+t;var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)}}(window,document,'ttq');
-    ttq.load(C.TIKTOK_PIXEL_ID); ttq.page();
+    ttq.load(C.TIKTOK_PIXEL_ID);
+    // quem já mandou o quiz: telefone (já em SHA-256) identifica também a visita e o clique em comprar
+    try{ const t=JSON.parse(localStorage.getItem(TEL_KEY)||'null'); if(t && Date.now()-t.t < DIAS_7) ttq.identify({phone_number:t.h}); else localStorage.removeItem(TEL_KEY); }catch(e){}
+    ttq.page();
   }
   // preço e lote
   function paintPrices(root){
@@ -100,5 +122,5 @@
     const st=document.querySelector('.sticky'), trig=document.querySelector('#metodo');
     if(st && trig){ const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting||en.boundingClientRect.top<0) st.classList.add('on'); }),{threshold:0}); io.observe(trig); }
   });
-  window.PPS = {checkoutURL, goCheckout, track, trackCustom, utms, clickIds, paintPrices, loteAtivo, tick};
+  window.PPS = {checkoutURL, goCheckout, track, trackCustom, identify, utms, clickIds, paintPrices, loteAtivo, tick};
 })();
