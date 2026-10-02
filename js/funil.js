@@ -24,6 +24,7 @@
       const box = a.closest('[data-oferta]');
       const widget = box && box.querySelector('[data-cakto-widget]');
       const temWidget = widget && widget.children.length > 0;
+      if(temWidget) box.querySelectorAll('[data-next]').forEach(n=>n.classList.add('fn-hide')); // o widget já traz o "Não, obrigada"
       if(temWidget || !link){ a.classList.add('fn-hide'); if(!link && !temWidget && /[?&]debug=1/.test(location.search)) a.insertAdjacentHTML('afterend','<p class="fn-note">⚠️ Preencha '+a.dataset.sim+' no js/config.js</p>'); return; }
       a.href = withQS(link);
       a.addEventListener('click', ()=>{ try{ if(window.PPS) PPS.track('InitiateCheckout', {content_name: a.dataset.sim}); }catch(e){} });

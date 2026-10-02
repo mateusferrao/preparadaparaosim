@@ -34,3 +34,8 @@
 .fn-share .btn{font-size:16px;padding:14px 22px}
 .fn-share .btn.ghost{background:transparent;color:var(--rose-d);border:1.5px solid var(--rose-d);box-shadow:none}
 .fn-hide{display:none!important}
+/* botões de 1 clique da Cakto (upsell.js) com o visual do .btn do site */
+[data-cakto-widget]{margin-top:16px}
+cakto-upsell-buttons{display:block}
+cakto-upsell-accept::part(button){width:100%;background:var(--rose-d);color:#fff;font:650 18px/1.25 Inter,system-ui,sans-serif;border:0;border-radius:999px;padding:18px 24px;cursor:pointer;box-shadow:0 10px 30px rgba(184,115,111,.35)}
+cakto-upsell-reject::part(button){width:100%;background:transparent;color:var(--dk-mut);font:400 15px/1.4 Inter,system-ui,sans-serif;border:0;text-decoration:underline;text-underline-offset:3px;padding:14px 8px 0;cursor:pointer}

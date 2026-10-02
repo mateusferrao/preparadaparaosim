@@ -33,8 +33,9 @@ window.PPS_CONFIG = {
 
   // Pós-compra: upsell (/palavras-certas/) → downsell (/palavras-certas-5/) → obrigado (/obrigado/)
   // Cole aqui os links que a Cakto gerar. Vazio = o botão "Sim" fica escondido (a página não quebra).
-  KIT_LINK: "",        // botão "Sim" do upsell (Kit Essencial, R$ 37): link de 1 clique da Cakto ou checkout do Kit
-  KIT5_LINK: "",       // botão "Sim" do downsell (As 5 Primeiras, R$ 19,90)
+  // As páginas usam o botão de 1 clique da Cakto (dentro de [data-cakto-widget]); estes links só aparecem se o widget for removido.
+  KIT_LINK: "https://pay.cakto.com.br/fbmmpam_1166026",   // checkout do Kit Essencial (R$ 37)
+  KIT5_LINK: "https://pay.cakto.com.br/3a8cueo_1166027",  // checkout do As 5 Primeiras (R$ 19,90)
   PRECO_KIT: "37",
   PRECO_KIT5: "19,90",
   AREA_MEMBROS: "",    // link de acesso à área de membros da Cakto (botão "Abrir o Dia 1" no obrigado)
