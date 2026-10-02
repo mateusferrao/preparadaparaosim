@@ -3,7 +3,7 @@
   const C = window.PPS_CONFIG;
   const qs = new URLSearchParams(location.search);
   // guarda UTMs da primeira visita (sessão)
-  const UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+  const UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'];
   try{ UTM_KEYS.forEach(k=>{ if(qs.get(k)) sessionStorage.setItem(k, qs.get(k)); }); }catch(e){}
   const utms = () => { const o={}; try{ UTM_KEYS.forEach(k=>{ const v=qs.get(k)||sessionStorage.getItem(k); if(v) o[k]=v; }); }catch(e){} return o; };
   // IDs de clique dos anúncios: vão até o checkout da Cakto (outro domínio) para a compra ser ligada ao anúncio
