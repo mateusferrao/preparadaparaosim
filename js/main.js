@@ -6,6 +6,10 @@
   const UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
   try{ UTM_KEYS.forEach(k=>{ if(qs.get(k)) sessionStorage.setItem(k, qs.get(k)); }); }catch(e){}
   const utms = () => { const o={}; try{ UTM_KEYS.forEach(k=>{ const v=qs.get(k)||sessionStorage.getItem(k); if(v) o[k]=v; }); }catch(e){} return o; };
+  // IDs de clique dos anúncios: vão até o checkout da Cakto (outro domínio) para a compra ser ligada ao anúncio
+  const CLICK_KEYS = ['ttclid','fbclid','gclid'];
+  try{ CLICK_KEYS.forEach(k=>{ if(qs.get(k)) sessionStorage.setItem(k, qs.get(k)); }); }catch(e){}
+  const clickIds = () => { const o={}; try{ CLICK_KEYS.forEach(k=>{ const v=qs.get(k)||sessionStorage.getItem(k); if(v) o[k]=v; }); }catch(e){} return o; };
 
   const DEMO = !!C.DEMO_ESCASSEZ;
   const demoFim = DEMO ? (()=>{ const [h,m,s]=(C.DEMO_CONTADOR||'02:54:27').split(':').map(Number); return new Date(Date.now()+((h*60+m)*60+s)*1000); })() : null;
@@ -15,7 +19,7 @@
 
   function checkoutURL(extra){
     let base = (loteAtivo() || !C.CHECKOUT_OFICIAL) ? C.CHECKOUT_LOTE : C.CHECKOUT_OFICIAL;
-    const u = new URL(base); const p = Object.assign({}, utms(), extra||{});
+    const u = new URL(base); const p = Object.assign({}, utms(), clickIds(), extra||{});
     Object.entries(p).forEach(([k,v])=>u.searchParams.set(k,v));
     return u.toString();
   }
@@ -30,9 +34,16 @@
     try{ if(window.fbq) fbq('track', ev, Object.assign({content_ids:[p.content_id]}, p)); }catch(e){}
     try{ if(window.ttq) ttq.track(ev==='Lead'?'SubmitForm':ev==='InitiateCheckout'?'InitiateCheckout':'ViewContent', p); }catch(e){}
   }
+  // eventos próprios do funil (ex.: progresso do quiz), sem misturar com os eventos de produto
+  function trackCustom(nome, data){
+    const p = Object.assign({}, data||{});
+    try{ if(window.fbq) fbq('trackCustom', nome, p); }catch(e){}
+    try{ if(window.ttq) ttq.track(nome, p); }catch(e){}
+  }
   function goCheckout(origem){
     track('InitiateCheckout');
-    location.href = checkoutURL(origem ? {utm_content: (utms().utm_content||origem)} : null);
+    // origem (lp_preco, quiz_D…) vai no sck, que a Cakto grava no pedido; a utm_content do anúncio fica intacta
+    location.href = checkoutURL(origem ? {sck: origem, utm_content: (utms().utm_content||origem)} : null);
   }
   // pixels (só se configurados)
   if(C.META_PIXEL_ID){
@@ -83,5 +94,5 @@
     const st=document.querySelector('.sticky'), trig=document.querySelector('#metodo');
     if(st && trig){ const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting||en.boundingClientRect.top<0) st.classList.add('on'); }),{threshold:0}); io.observe(trig); }
   });
-  window.PPS = {checkoutURL, goCheckout, track, utms, paintPrices, loteAtivo, tick};
+  window.PPS = {checkoutURL, goCheckout, track, trackCustom, utms, clickIds, paintPrices, loteAtivo, tick};
 })();

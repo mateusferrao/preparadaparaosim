@@ -91,10 +91,14 @@ function start(){
   body.innerHTML=`<div class="label">Teste gratuito · 2 minutos</div><h2>Você está pronta <em>para o Sim?</em></h2>
   <p class="lead">Responda 9 perguntas rápidas e descubra o padrão que está travando sua vida amorosa, e qual é o seu primeiro passo.</p>
   <p class="muted">Leva menos de 2 minutos.</p><button class="btn block" id="go">Começar o teste</button>`;
-  body.querySelector('#go').onclick=()=>{ PPS.track('ViewContent',{content_name:'quiz_start'}); ask(); };
+  body.querySelector('#go').onclick=()=>{ once('QuizStart'); ask(); };
 }
+// eventos do funil do quiz: cada um só uma vez por visita
+const sent={};
+function once(nome, data){ if(sent[nome]) return; sent[nome]=1; PPS.trackCustom(nome, Object.assign({content_name:'quiz'}, data||{})); }
 function ask(){
   const q=Q[i]; setProg(i/ (Q.length+1) *100);
+  if(i===4) once('QuizProgress', {step:5});
   const keys=Object.keys(q.o); const order = q.key ? keys : shuffle(keys);
   body.innerHTML=`<div class="label">Pergunta ${i+1} de ${Q.length}</div><h2>${q.t}</h2>`+
     order.map(k=>`<button class="opt${ans[i]===k?' sel':''}" data-k="${k}">${q.o[k]}</button>`).join('')+
@@ -104,7 +108,7 @@ function ask(){
 }
 function shuffle(a){ a=a.slice(); for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]];} return a; }
 function contact(){
-  setProg(92);
+  setProg(92); once('QuizComplete');
   body.innerHTML=`<div class="label">Quase lá</div><h2>Seu resultado <em>está pronto.</em></h2>
   <p>Preencha para liberar seu perfil + o seu primeiro passo gratuito.</p>
   <form id="lf" novalidate>
@@ -145,7 +149,7 @@ function contact(){
     const nome=f.nome.value.trim(), w=dig(f.whatsapp.value);
     const perfil=scoreOf();
     const payload=Object.assign({data:new Date().toISOString(),nome,whatsapp:w,perfil,perfil_nome:P[perfil].n,respostas:ans.join(','),livros:ans[7]||'',idade:Q[8].o[ans[8]]||'',
-      consentimento:'Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp. Posso cancelar quando quiser.',pagina:location.href}, PPS.utms());
+      consentimento:'Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp. Posso cancelar quando quiser.',pagina:location.href}, PPS.utms(), PPS.clickIds());
     if(C.LEADS_ENDPOINT){ try{ fetch(C.LEADS_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,body:new URLSearchParams(payload)}); }catch(x){} }
     PPS.track('Lead',{content_name:'quiz', content_category:perfil});
     try{ localStorage.setItem('pps_perfil',perfil); localStorage.setItem('pps_nome',nome); localStorage.setItem('pps_idade',ans[8]||''); localStorage.setItem('pps_livros',ans[7]||''); }catch(x){}
@@ -187,6 +191,8 @@ function result(k, nome){
    <a href="#" class="btn block" data-checkout="quiz_${k}">Quero continuar a minha jornada</a>
    <p style="margin-top:14px"><a href="${BASE}" class="muted" style="font-size:15px">Quer ver tudo o que está incluso, em detalhes? Ver a página completa →</a></p></div>`;
   PPS.paintPrices(body); PPS.tick();
+  // a oferta aparece aqui: ViewContent do produto, com valor, marcando o perfil
+  if(!sent.result){ sent.result=1; PPS.track('ViewContent', {content_category:'quiz_'+k}); }
   body.querySelectorAll('[data-checkout]').forEach(a=>a.onclick=e=>{e.preventDefault(); PPS.goCheckout(a.dataset.checkout);});
   body.querySelector('#sv').onclick=async()=>{
     const url=BASE+'teste/#resultado-'+k;
