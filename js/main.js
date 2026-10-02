@@ -19,12 +19,19 @@
     Object.entries(p).forEach(([k,v])=>u.searchParams.set(k,v));
     return u.toString();
   }
+  // produto principal: mesmos parâmetros em todos os eventos (o funil de e-commerce do TikTok/Meta pede content_id e content_type)
+  const PRODUTO = {content_id:'preparada-21-dias', content_type:'product', content_name:'Preparada para o Sim · Jornada de 21 Dias', currency:'BRL'};
+  const precoAtual = () => parseFloat((loteAtivo() ? C.PRECO_LOTE : C.PRECO_OFICIAL).replace(',','.'));
   function track(ev, data){
-    try{ if(window.fbq) fbq('track', ev, data||{}); }catch(e){}
-    try{ if(window.ttq) ttq.track(ev==='Lead'?'SubmitForm':ev==='InitiateCheckout'?'InitiateCheckout':'ViewContent', data||{}); }catch(e){}
+    data = data || {};
+    // valor só nos eventos de produto (não em início/fim de quiz)
+    const comValor = ev==='InitiateCheckout' || (ev==='ViewContent' && !data.content_name);
+    const p = Object.assign({}, PRODUTO, comValor ? {value: precoAtual()} : {}, data);
+    try{ if(window.fbq) fbq('track', ev, Object.assign({content_ids:[p.content_id]}, p)); }catch(e){}
+    try{ if(window.ttq) ttq.track(ev==='Lead'?'SubmitForm':ev==='InitiateCheckout'?'InitiateCheckout':'ViewContent', p); }catch(e){}
   }
   function goCheckout(origem){
-    track('InitiateCheckout', {value: parseFloat(C.PRECO_LOTE.replace(',','.')), currency:'BRL'});
+    track('InitiateCheckout');
     location.href = checkoutURL(origem ? {utm_content: (utms().utm_content||origem)} : null);
   }
   // pixels (só se configurados)
@@ -70,6 +77,8 @@
   }
   document.addEventListener('DOMContentLoaded', ()=>{
     paintPrices(); tick(); setInterval(tick,1000);
+    // ViewContent ao abrir a página de vendas (só na home)
+    if(/^\/(index\.html)?$/.test(location.pathname)) track('ViewContent');
     document.querySelectorAll('[data-checkout]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault(); goCheckout(a.dataset.checkout);}));
     const st=document.querySelector('.sticky'), trig=document.querySelector('#metodo');
     if(st && trig){ const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting||en.boundingClientRect.top<0) st.classList.add('on'); }),{threshold:0}); io.observe(trig); }
