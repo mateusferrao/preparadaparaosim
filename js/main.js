@@ -26,14 +26,15 @@
   // produto principal: mesmos parâmetros em todos os eventos (o funil de e-commerce do TikTok/Meta pede content_id e content_type)
   const PRODUTO = {content_id:'preparada-21-dias', content_type:'product', content_name:'Preparada para o Sim · Jornada de 21 Dias', currency:'BRL'};
   const precoAtual = () => parseFloat((loteAtivo() ? C.PRECO_LOTE : C.PRECO_OFICIAL).replace(',','.'));
-  function track(ev, data){
-    data = data || {};
+  // opts.event_id: mesmo id enviado pelo servidor (n8n → Events API) para o TikTok/Meta juntarem os dois envios
+  function track(ev, data, opts){
+    data = data || {}; const eid = opts && opts.event_id;
     // valor só nos eventos de produto (não em início/fim de quiz)
     const comValor = ev==='InitiateCheckout' || (ev==='ViewContent' && !data.content_name);
     const p = Object.assign({}, PRODUTO, comValor ? {value: precoAtual()} : {}, data);
-    try{ if(window.fbq) fbq('track', ev, Object.assign({content_ids:[p.content_id]}, p)); }catch(e){}
+    try{ if(window.fbq) fbq('track', ev, Object.assign({content_ids:[p.content_id]}, p), eid ? {eventID: eid} : undefined); }catch(e){}
     // TikTok: o lead do quiz vai como CompleteRegistration (evento do funil de conversão configurado no pixel)
-    try{ if(window.ttq) ttq.track(ev==='Lead'?'CompleteRegistration':ev==='InitiateCheckout'?'InitiateCheckout':'ViewContent', p); }catch(e){}
+    try{ if(window.ttq) ttq.track(ev==='Lead'?'CompleteRegistration':ev==='InitiateCheckout'?'InitiateCheckout':'ViewContent', p, eid ? {event_id: eid} : undefined); }catch(e){}
   }
   // eventos próprios do funil (ex.: progresso do quiz), sem misturar com os eventos de produto
   function trackCustom(nome, data){

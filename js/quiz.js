@@ -148,10 +148,13 @@ function contact(){
     if(bad.length){ const first=f[bad[0]]; first.closest('.field,.consent').scrollIntoView({behavior:'smooth',block:'center'}); first.focus({preventScroll:true}); return; }
     const nome=f.nome.value.trim(), w=dig(f.whatsapp.value);
     const perfil=scoreOf();
+    // mesmo event_id no pixel e no n8n (Events API): o TikTok junta os dois e conta 1 lead
+    const eventId='lead_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+    const ttp=(document.cookie.match(/(?:^|;\s*)_ttp=([^;]+)/)||[])[1]||'';
     const payload=Object.assign({data:new Date().toISOString(),nome,whatsapp:w,perfil,perfil_nome:P[perfil].n,respostas:ans.join(','),livros:ans[7]||'',idade:Q[8].o[ans[8]]||'',
-      consentimento:'Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp. Posso cancelar quando quiser.',pagina:location.href}, PPS.utms(), PPS.clickIds());
+      consentimento:'Aceito receber conteúdos e ofertas da Preparada para o Sim por WhatsApp. Posso cancelar quando quiser.',pagina:location.href,event_id:eventId,ttp}, PPS.utms(), PPS.clickIds());
     if(C.LEADS_ENDPOINT){ try{ fetch(C.LEADS_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,body:new URLSearchParams(payload)}); }catch(x){} }
-    PPS.track('Lead',{content_name:'quiz', content_category:perfil});
+    PPS.track('Lead',{content_name:'quiz', content_category:perfil}, {event_id:eventId});
     try{ localStorage.setItem('pps_perfil',perfil); localStorage.setItem('pps_nome',nome); localStorage.setItem('pps_idade',ans[8]||''); localStorage.setItem('pps_livros',ans[7]||''); }catch(x){}
     history.replaceState(null,'','#resultado-'+perfil);
     result(perfil, nome);
