@@ -39,7 +39,7 @@ window.PPS_CONFIG = {
   PRECO_KIT: "37",
   PRECO_KIT5: "19,90",
   AREA_MEMBROS: "",    // link de acesso à área de membros da Cakto (botão "Abrir o Dia 1" no obrigado)
-  INSTAGRAM: "",       // @ do perfil, sem o @ (ex.: "preparadaparaosim"). Vazio = não mostra.
+  INSTAGRAM: "preparadaparaosim",       // @ do perfil, sem o @ (ex.: "preparadaparaosim"). Vazio = não mostra.
 
   SUPORTE: "contato@preparadaparaosim.com.br",
   FORM_DEPOIMENTO: "https://forms.gle/J4uT3NYzcT6nj9XbA"
